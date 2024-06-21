@@ -1,1 +1,0 @@
-/home/ivycap/Documents/Projects/wlb-cli/target/debug/wlb-cli: /home/ivycap/Documents/Projects/wlb-cli/src/cmd_args.rs /home/ivycap/Documents/Projects/wlb-cli/src/logic.rs /home/ivycap/Documents/Projects/wlb-cli/src/main.rs /home/ivycap/Documents/Projects/wlb-cli/src/parser.rs
