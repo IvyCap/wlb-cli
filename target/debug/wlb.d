@@ -1,1 +1,0 @@
-/home/ivycap/Documents/LittleProjects/worklife-cli/target/debug/wlb: /home/ivycap/Documents/LittleProjects/worklife-cli/src/logic.rs /home/ivycap/Documents/LittleProjects/worklife-cli/src/main.rs /home/ivycap/Documents/LittleProjects/worklife-cli/src/parser.rs
