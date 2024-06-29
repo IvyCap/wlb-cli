@@ -9,9 +9,28 @@ pub struct Tasks {
     pub tasks: Vec<(String, String)>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct TaskRecords {
-    pub times: Vec<(String, f32)>,
+    pub daily_records: Vec<DailyRecord>,
+}
+
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
+pub struct DailyRecord {
+    pub date: Date,
+    pub task_time: Vec<TaskTime>,
+}
+
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
+pub struct TaskTime {
+    pub task: String,
+    pub time: f32,
+}
+
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
+pub struct Date {
+    pub year: i32,
+    pub month: u32,
+    pub day: u32,
 }
 
 #[derive(PartialEq)]
@@ -48,16 +67,18 @@ pub fn parse_task_data() -> Vec<(String, String)> {
     task_list
 }
 
-pub fn parse_task_time_data() -> Vec<(String, f32)> {
+pub fn parse_task_time_data() -> Vec<(DailyRecord)> {
     _ = does_file_exist(TASKTIMEPATH);
 
     let task_time_data_json: String = open_file(TASKTIMEPATH);
 
     let v: TaskRecords = json_to_struct_task_records(task_time_data_json.as_str());
 
-    let mut task_time_list: Vec<(String, f32)> = vec![];
+    let mut task_time_list: Vec<(DailyRecord)> = vec![];
 
-    for time in v.times {
+    let day_record = v.daily_records;
+
+    for time in day_record {
         // println!("{:?}", task);
         task_time_list.push(time)
     }
@@ -65,47 +86,47 @@ pub fn parse_task_time_data() -> Vec<(String, f32)> {
     task_time_list
 }
 
-pub fn save_task_time(task_times: Vec<(String, f32)>) {
-    _ = does_file_exist(TASKTIMEPATH);
+// pub fn save_task_time(task_times: Vec<(String, f32)>) {
+//     _ = does_file_exist(TASKTIMEPATH);
 
-    _ = write_save_file(task_times);
-}
+//     _ = write_save_file(task_times);
+// }
 
-fn write_save_file(task_times: Vec<(String, f32)>) {
-    let file = open_file(TASKTIMEPATH);
-    let saved_struct: TaskRecords = json_to_struct_task_records(&file.as_str());
-    // dbg!("Write File Path: {}", &file);
-    // dbg!("Saved Struct: {}", &saved_struct);
+// fn write_save_file(task_times: Vec<(String, f32)>) {
+//     let file = open_file(TASKTIMEPATH);
+//     let saved_struct: TaskRecords = json_to_struct_task_records(&file.as_str());
+//     // dbg!("Write File Path: {}", &file);
+//     // dbg!("Saved Struct: {}", &saved_struct);
 
-    let mut saved_task_time: Vec<(String, f32)> = vec![];
+//     let mut saved_task_time: Vec<(String, f32)> = vec![];
 
-    for time in saved_struct.times {
-        saved_task_time.push(time)
-    }
+//     for time in saved_struct.times {
+//         saved_task_time.push(time)
+//     }
 
-    // dbg!("Saved Task Times: {}", &saved_task_time);
+//     // dbg!("Saved Task Times: {}", &saved_task_time);
 
-    for task_time in task_times {
-        saved_task_time.push(task_time);
-    }
+//     for task_time in task_times {
+//         saved_task_time.push(task_time);
+//     }
 
-    // dbg!("Updated Saved Task Times: {}", &saved_task_time);
+//     // dbg!("Updated Saved Task Times: {}", &saved_task_time);
 
-    let updated_struct: TaskRecords = TaskRecords {
-        times: saved_task_time,
-    };
+//     let updated_struct: TaskRecords = TaskRecords {
+//         daily_records: saved_task_time,
+//     };
 
-    // dbg!("Updated Struct: {}", &updated_struct);
+//     // dbg!("Updated Struct: {}", &updated_struct);
 
-    let new_json = struct_task_records_to_json(updated_struct);
+//     let new_json = struct_task_records_to_json(updated_struct);
 
-    let mut write_file = create_file(TASKTIMEPATH);
+//     let mut write_file = create_file(TASKTIMEPATH);
 
-    match write_file.write_all(new_json.as_bytes()) {
-        Err(why) => panic!("couldn't deserialize from String to Tasks struct {}", why),
-        Ok(()) => println!("Saved new task times"),
-    };
-}
+//     match write_file.write_all(new_json.as_bytes()) {
+//         Err(why) => panic!("couldn't deserialize from String to Tasks struct {}", why),
+//         Ok(()) => println!("Saved new task times"),
+//     };
+// }
 
 fn write_task_data(tasks_data: Vec<(String, String)>) -> std::io::Result<()> {
     let mut file: Tasks = json_to_struct_tasks(open_file(TASKPATH).as_str());

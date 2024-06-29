@@ -2,6 +2,8 @@ use colored::*;
 use std::io::{stdin, stdout, Write};
 use std::process::exit;
 
+use crate::parser::*;
+
 const HOURSDAY: f32 = 24.0;
 
 pub fn app_title() {
@@ -74,15 +76,15 @@ pub fn get_times(tasks: Vec<(String, String)>) -> Vec<(String, f32)> {
     task_time
 }
 
-pub fn print_tasks_percent(titles_times: &Vec<(String, f32)>) {
+pub fn print_tasks_percent(titles_times: &Vec<TaskTime>) {
     println!("");
     println!("{}", "Task Percentages for the Day".cyan());
 
     for time in titles_times {
-        let per_time = percent_calc(time.1, 1.0);
+        let per_time = percent_calc(time.time, 1.0);
         println!(
             "{}: {:.2}{}",
-            time.0.bright_blue(),
+            time.task.bright_blue(),
             per_time.to_string().on_yellow().black(),
             "%".on_yellow().black()
         );

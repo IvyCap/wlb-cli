@@ -1,3 +1,4 @@
+use chrono::{Datelike, Utc};
 use clap::{arg, command, ArgMatches, Command};
 
 use crate::logic::*;
@@ -23,20 +24,23 @@ pub fn subcmd_args() -> Command {
         .subcommand(
             Command::new("review")
                 .about("Review time spent on tasks")
+                .arg(arg!(-t --today [TODAY] "Review todays task data"))
                 .arg(arg!(-w --week [WEEK] "Review task data over the current week"))
                 .arg_required_else_help(true),
         )
 }
 
-pub fn default_cmd() {
-    let task_data = parse_task_data();
+pub fn default_cmd() {}
 
-    let task_times: Vec<(String, f32)> = get_times(task_data);
+// pub fn default_cmd() {
+//     let task_data = parse_task_data();
 
-    print_tasks_percent(&task_times);
+//     let task_times: Vec<(String, f32)> = get_times(task_data);
 
-    save_task_time(task_times);
-}
+//     print_tasks_percent(&task_times);
+
+//     save_task_time(task_times);
+// }
 
 pub fn task_cmd(matches: &ArgMatches) {
     let task_data = parse_task_data();
@@ -51,7 +55,23 @@ pub fn task_cmd(matches: &ArgMatches) {
 
 pub fn review_cmd(matches: &ArgMatches) {
     let task_time_data = parse_task_time_data();
-    if let Some(week) = matches.get_many::<String>("week") {
-        print_tasks_percent(&task_time_data)
+    if let Some(today) = matches.get_many::<String>("today") {
+        for record in task_time_data {
+            let now = Utc::now();
+
+            let date: Date = Date {
+                year: now.year(),
+                month: now.month(),
+                day: now.day(),
+            };
+
+            if record.date.year == now.year()
+                && record.date.month == now.month()
+                && record.date.day == now.day()
+            {
+                let day_task_time = record.task_time;
+                print_tasks_percent(&day_task_time)
+            }
+        }
     }
 }
