@@ -1,20 +1,16 @@
-use chrono::{Date, Datelike, Local};
+use chrono::{Datelike, Local};
 use serde::{Deserialize, Serialize};
-use serde_json::Result;
-use std::fs::File;
-use std::io::prelude::*;
-use std::path::{self, Path};
 
 use crate::shared::*;
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct Tasks {
+pub struct Settings {
     pub tasks: Vec<(String, String)>,
 }
 
-impl Tasks {
-    pub fn new() -> Tasks {
-        let new_record: Tasks = Tasks { tasks: vec![] };
+impl Settings {
+    pub fn new() -> Settings {
+        let new_record: Settings = Settings { tasks: vec![] };
         new_record
     }
 }
@@ -33,7 +29,7 @@ impl TaskRecords {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct DailyRecord {
     pub date: DateRecord,
     pub task_time: Vec<(String, f32)>,
@@ -49,7 +45,7 @@ impl DailyRecord {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Copy, Clone)]
 pub struct DateRecord {
     pub year: i32,
     pub month: u32,
@@ -68,15 +64,15 @@ impl DateRecord {
     }
 }
 
-pub const TASKPATH: &str = "./taskData.json";
+pub const SETTINGSPATH: &str = "./wlbSettings.json";
 pub const TASKTIMEPATH: &str = "./taskTimeData.json";
 
 pub fn parse_task_data() -> Vec<(String, String)> {
-    _ = does_file_exist(TASKPATH);
+    _ = does_file_exist(SETTINGSPATH);
 
-    let tasks_json: String = open_file(TASKPATH);
+    let tasks_json: String = open_file(SETTINGSPATH);
 
-    let v: Tasks = json_to_struct_tasks(tasks_json.as_str());
+    let v: Settings = json_to_struct_settings(tasks_json.as_str());
 
     let mut task_list: Vec<(String, String)> = vec![];
 
@@ -100,9 +96,12 @@ pub fn parse_task_time_data() -> Vec<DailyRecord> {
     daily_records_list
 }
 
-pub fn json_to_struct_tasks(tasks: &str) -> Tasks {
-    let v: Tasks = match serde_json::from_str(tasks) {
-        Err(why) => panic!("couldn't deserialize from String to Tasks struct {}", why),
+pub fn json_to_struct_settings(tasks: &str) -> Settings {
+    let v: Settings = match serde_json::from_str(tasks) {
+        Err(why) => panic!(
+            "couldn't deserialize from String to Settings struct {}",
+            why
+        ),
         Ok(file) => file,
     };
 
@@ -121,9 +120,9 @@ pub fn json_to_struct_task_records(task_records: &str) -> TaskRecords {
     v
 }
 
-pub fn struct_tasks_to_json(struct_t: Tasks) -> String {
+pub fn struct_settings_to_json(struct_t: Settings) -> String {
     let v: String = match serde_json::to_string(&struct_t) {
-        Err(why) => panic!("couldn't serialize from Tasks struct to String: {}", why),
+        Err(why) => panic!("couldn't serialize from Settingsstruct to String: {}", why),
         Ok(file) => file,
     };
 

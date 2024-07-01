@@ -38,6 +38,8 @@ pub fn subcmd_args() -> Command {
 pub fn default_cmd() {
     let task_data = parse_task_data();
 
+    _ = check_for_today();
+
     let task_times: Vec<(String, f32)> = get_times(task_data);
 
     print_tasks_percent(&task_times, 1.0);

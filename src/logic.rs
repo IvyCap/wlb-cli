@@ -18,7 +18,7 @@ fn ask_hours(task: String) -> f32 {
     stdout().flush().unwrap();
 
     let mut task_time = String::new();
-    stdin().read_line(&mut task_time).unwrap();
+    stdin().read_line(&mut task_time).unwrap().to_string();
     let perc_time: f32;
     task_time.pop();
     if task_time.is_empty() {
@@ -59,7 +59,7 @@ pub fn get_times(tasks: Vec<(String, String)>) -> Vec<(String, f32)> {
         );
         println!(
             "{}",
-            "Please reenter the hours and ensure they do not exceed 24 hours"
+            "Please re-enter the hours and ensure they do not exceed 24 hours"
                 .on_red()
                 .bold()
                 .black()
@@ -98,32 +98,29 @@ pub fn print_tasks_list(task_list: &Vec<(String, String)>) {
     println!("");
 }
 
-pub fn combined_task_times(mut combined_recods: Vec<Vec<(String, f32)>>) -> Vec<(String, f32)>{
+pub fn combined_task_times(mut combined_recods: Vec<Vec<(String, f32)>>) -> Vec<(String, f32)> {
     let mut new_combined_list: Vec<(String, f32)> = pre_populate_task_list();
 
-    for day_tasks in combined_recods{
+    for day_tasks in combined_recods {
         for task in day_tasks {
-            let mut in_list_flag:bool = false;
+            let mut in_list_flag: bool = false;
             for new_task in new_combined_list.clone() {
                 if new_task.0.to_lowercase() == task.0.to_lowercase() {
                     let new_time = (new_task.0.clone(), new_task.1 + task.1);
                     new_combined_list.remove(0);
                     new_combined_list.push(new_time);
                     in_list_flag = true;
-
                 }
             }
             if in_list_flag == false {
-            new_combined_list.push(task)
+                new_combined_list.push(task)
             }
-        }    
+        }
     }
     new_combined_list
-    
-    
 }
 
-fn pre_populate_task_list() -> Vec<(String, f32)>{
+fn pre_populate_task_list() -> Vec<(String, f32)> {
     let task_list = parse_task_data();
     let mut populated_list: Vec<(String, f32)> = vec![];
 
