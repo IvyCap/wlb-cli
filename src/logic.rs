@@ -1,8 +1,10 @@
+use crate::parser::*;
+use crate::shared::*;
+
+use chrono::{Datelike, Local};
 use colored::*;
 use std::io::{empty, stdin, stdout, Write};
 use std::process::exit;
-
-use crate::parser::*;
 
 const HOURSDAY: f32 = 24.0;
 
@@ -130,4 +132,48 @@ fn pre_populate_task_list() -> Vec<(String, f32)> {
     }
 
     populated_list
+}
+
+pub fn check_for_today() {
+    let daily_records_list = parse_task_time_data();
+    let mut today_flag = false;
+    let now = Local::now();
+    let mut new_record_list: Vec<DailyRecord> = vec![];
+
+    for record in daily_records_list {
+        if record.date.year == now.year()
+            && record.date.month == now.month()
+            && record.date.day == now.day()
+        {
+            today_flag = true
+        } else {
+            new_record_list.push(record);
+        }
+
+        if today_flag == true {
+            println!("Task record alreay exists for today");
+            println!("Do you want to overwrite your times for today?  Y/N");
+
+            stdout().flush().unwrap();
+
+            let mut change_task: String = String::new();
+            stdin().read_line(&mut change_task).unwrap().to_string();
+            change_task.pop();
+
+            match change_task.as_str() {
+                "y" | "yes" => {
+                    println!("Adding new task times");
+                    overwrite_tasks(&new_record_list)
+                }
+                "n" | "no" => {
+                    println!("Not adding new task times. Exiting...");
+                    exit(0)
+                }
+                _ => {
+                    println!("Invalid option! Exiting!");
+                    exit(0)
+                }
+            }
+        }
+    }
 }
