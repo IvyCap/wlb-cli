@@ -4,6 +4,7 @@ use colored::*;
 
 use crate::logic::*;
 use crate::parser::*;
+use crate::shared::*;
 
 // //Todo: Add edit arg to edit task_data json file with text editor
 
@@ -32,17 +33,19 @@ pub fn subcmd_args() -> Command {
         )
 }
 
-pub fn default_cmd() {}
+// pub fn default_cmd() {}
 
-// pub fn default_cmd() {
-//     let task_data = parse_task_data();
+pub fn default_cmd() {
+    let task_data = parse_task_data();
 
-//     let task_times: Vec<(String, f32)> = get_times(task_data);
+    let task_times: Vec<(String, f32)> = get_times(task_data);
 
-//     print_tasks_percent(&task_times);
+    print_tasks_percent(&task_times, 1.0);
 
-//     save_task_time(task_times);
-// }
+    let date = DateRecord::create_today();
+
+    save_task_time(task_times, date);
+}
 
 pub fn task_cmd(matches: &ArgMatches) {
     let task_data = parse_task_data();
@@ -60,31 +63,39 @@ pub fn review_cmd(matches: &ArgMatches) {
     let daily_records_list = parse_task_time_data();
     if let Some(today) = matches.get_many::<String>("today") {
         for record in daily_records_list {
-
             if record.date.year == now.year()
                 && record.date.month == now.month()
                 && record.date.day == now.day()
             {
                 let day_task_time = record.task_time;
                 println!("");
-                println!("{} {}-{}-{}", "Task Percentages for today:".cyan(), record.date.year.to_string().cyan(), record.date.month.to_string().cyan(), record.date.day.to_string().cyan());
+                println!(
+                    "{} {}-{}-{}",
+                    "Task Percentages for today:".cyan(),
+                    record.date.year.to_string().cyan(),
+                    record.date.month.to_string().cyan(),
+                    record.date.day.to_string().cyan()
+                );
                 print_tasks_percent(&day_task_time, 1.0)
             }
         }
-    }   else if let Some(year) = matches.get_many::<String>("year") {
+    } else if let Some(year) = matches.get_many::<String>("year") {
         let mut combined_record: Vec<Vec<(String, f32)>> = vec![];
         let mut days_of_tasks: f32 = 0.0;
         for record in daily_records_list {
-            if record.date.year == now.year(){
+            if record.date.year == now.year() {
                 days_of_tasks += 1.0;
                 combined_record.push(record.task_time)
             }
         }
         let day_task_time = combined_task_times(combined_record);
         println!("");
-        println!("{} {}", "Task Percentages for this year:".cyan(), now.year().to_string().cyan());
-        println!("Number of days tasks where logged: {}", &days_of_tasks);        
+        println!(
+            "{} {}",
+            "Task Percentages for this year:".cyan(),
+            now.year().to_string().cyan()
+        );
+        println!("Number of days tasks where logged: {}", &days_of_tasks);
         print_tasks_percent(&day_task_time, days_of_tasks)
     }
-
 }

@@ -4,6 +4,7 @@ use crate::logic::*;
 mod cmd_args;
 mod logic;
 mod parser;
+mod shared;
 
 fn main() {
     let matches: clap::ArgMatches = subcmd_args().get_matches();
