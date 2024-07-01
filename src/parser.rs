@@ -17,14 +17,14 @@ pub struct TaskRecords {
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct DailyRecord {
     pub date: Date,
-    pub task_time: Vec<TaskTime>,
+    pub task_time: Vec<(String, f32) >,
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
-pub struct TaskTime {
-    pub task: String,
-    pub time: f32,
-}
+// #[derive(Serialize, Deserialize, Debug, PartialEq)]
+// pub struct TaskTime {
+//     pub task: String,
+//     pub time: f32,
+// }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct Date {
@@ -67,23 +67,30 @@ pub fn parse_task_data() -> Vec<(String, String)> {
     task_list
 }
 
-pub fn parse_task_time_data() -> Vec<(DailyRecord)> {
+pub fn parse_task_time_data() -> Vec<DailyRecord> {
     _ = does_file_exist(TASKTIMEPATH);
 
     let task_time_data_json: String = open_file(TASKTIMEPATH);
 
     let v: TaskRecords = json_to_struct_task_records(task_time_data_json.as_str());
 
-    let mut task_time_list: Vec<(DailyRecord)> = vec![];
+    // let mut task_time_list: Vec<> = vec![];
 
-    let day_record = v.daily_records;
+    let daily_records_list = v.daily_records;
 
-    for time in day_record {
-        // println!("{:?}", task);
-        task_time_list.push(time)
-    }
+    // for record in day_record {
+    //     match record.date {
+    //         100.00 => { for tasks in record.task_time {
+    //             task_time_list.push(tasks)
+    //         } },
+    //         _ => println!("No data found for today")
+    //     }
+                
+    // }
 
-    task_time_list
+    // task_time_list
+
+    daily_records_list
 }
 
 // pub fn save_task_time(task_times: Vec<(String, f32)>) {
@@ -151,8 +158,8 @@ fn json_to_struct_tasks(tasks: &str) -> Tasks {
     v
 }
 
-fn json_to_struct_task_records(tasks: &str) -> TaskRecords {
-    let v: TaskRecords = match serde_json::from_str(tasks) {
+fn json_to_struct_task_records(task_records: &str) -> TaskRecords {
+    let v: TaskRecords = match serde_json::from_str(task_records) {
         Err(why) => panic!(
             "couldn't deserialize from String to TaskRecord struct: {}",
             why

@@ -1,5 +1,6 @@
-use chrono::{Datelike, Utc};
+use chrono::{Datelike, Local};
 use clap::{arg, command, ArgMatches, Command};
+use colored::*;
 
 use crate::logic::*;
 use crate::parser::*;
@@ -26,6 +27,7 @@ pub fn subcmd_args() -> Command {
                 .about("Review time spent on tasks")
                 .arg(arg!(-t --today [TODAY] "Review todays task data"))
                 .arg(arg!(-w --week [WEEK] "Review task data over the current week"))
+                .arg(arg!(-y --year [YEAR] "Review task data over the current year"))
                 .arg_required_else_help(true),
         )
 }
@@ -54,24 +56,35 @@ pub fn task_cmd(matches: &ArgMatches) {
 }
 
 pub fn review_cmd(matches: &ArgMatches) {
-    let task_time_data = parse_task_time_data();
+    let now = Local::now();
+    let daily_records_list = parse_task_time_data();
     if let Some(today) = matches.get_many::<String>("today") {
-        for record in task_time_data {
-            let now = Utc::now();
-
-            let date: Date = Date {
-                year: now.year(),
-                month: now.month(),
-                day: now.day(),
-            };
+        for record in daily_records_list {
 
             if record.date.year == now.year()
                 && record.date.month == now.month()
                 && record.date.day == now.day()
             {
                 let day_task_time = record.task_time;
-                print_tasks_percent(&day_task_time)
+                println!("");
+                println!("{} {}-{}-{}", "Task Percentages for today:".cyan(), record.date.year.to_string().cyan(), record.date.month.to_string().cyan(), record.date.day.to_string().cyan());
+                print_tasks_percent(&day_task_time, 1.0)
             }
         }
+    }   else if let Some(year) = matches.get_many::<String>("year") {
+        let mut combined_record: Vec<Vec<(String, f32)>> = vec![];
+        let mut days_of_tasks: f32 = 0.0;
+        for record in daily_records_list {
+            if record.date.year == now.year(){
+                days_of_tasks += 1.0;
+                combined_record.push(record.task_time)
+            }
+        }
+        let day_task_time = combined_task_times(combined_record);
+        println!("");
+        println!("{} {}", "Task Percentages for this year:".cyan(), now.year().to_string().cyan());
+        println!("Number of days tasks where logged: {}", &days_of_tasks);        
+        print_tasks_percent(&day_task_time, days_of_tasks)
     }
+
 }

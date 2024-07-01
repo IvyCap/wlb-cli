@@ -1,5 +1,5 @@
 use colored::*;
-use std::io::{stdin, stdout, Write};
+use std::io::{empty, stdin, stdout, Write};
 use std::process::exit;
 
 use crate::parser::*;
@@ -76,15 +76,12 @@ pub fn get_times(tasks: Vec<(String, String)>) -> Vec<(String, f32)> {
     task_time
 }
 
-pub fn print_tasks_percent(titles_times: &Vec<TaskTime>) {
-    println!("");
-    println!("{}", "Task Percentages for the Day".cyan());
-
+pub fn print_tasks_percent(titles_times: &Vec<(String, f32)>, num_days: f32) {
     for time in titles_times {
-        let per_time = percent_calc(time.time, 1.0);
+        let per_time = percent_calc(time.1, num_days);
         println!(
             "{}: {:.2}{}",
-            time.task.bright_blue(),
+            time.0.bright_blue(),
             per_time.to_string().on_yellow().black(),
             "%".on_yellow().black()
         );
@@ -99,4 +96,41 @@ pub fn print_tasks_list(task_list: &Vec<(String, String)>) {
         println!("{}: {}", task.0.bright_blue(), task.1.blue());
     }
     println!("");
+}
+
+pub fn combined_task_times(mut combined_recods: Vec<Vec<(String, f32)>>) -> Vec<(String, f32)>{
+    let mut new_combined_list: Vec<(String, f32)> = pre_populate_task_list();
+
+    for day_tasks in combined_recods{
+        for task in day_tasks {
+            let mut in_list_flag:bool = false;
+            for new_task in new_combined_list.clone() {
+                if new_task.0.to_lowercase() == task.0.to_lowercase() {
+                    let new_time = (new_task.0.clone(), new_task.1 + task.1);
+                    new_combined_list.remove(0);
+                    new_combined_list.push(new_time);
+                    in_list_flag = true;
+
+                }
+            }
+            if in_list_flag == false {
+            new_combined_list.push(task)
+            }
+        }    
+    }
+    new_combined_list
+    
+    
+}
+
+fn pre_populate_task_list() -> Vec<(String, f32)>{
+    let task_list = parse_task_data();
+    let mut populated_list: Vec<(String, f32)> = vec![];
+
+    for task in task_list {
+        let new_tup = (task.0, 0.0);
+        populated_list.push(new_tup);
+    }
+
+    populated_list
 }
