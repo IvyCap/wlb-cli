@@ -5,7 +5,7 @@ use crate::shared::*;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Settings {
-    pub tasks: Vec<(String, String)>,
+    pub tasks: Vec<String>,
 }
 
 impl Settings {
@@ -67,14 +67,14 @@ impl DateRecord {
 pub const SETTINGSPATH: &str = "./wlbSettings.json";
 pub const TASKTIMEPATH: &str = "./taskTimeData.json";
 
-pub fn parse_task_data() -> Vec<(String, String)> {
+pub fn parse_task_data() -> Vec<String> {
     _ = does_file_exist(SETTINGSPATH);
 
     let tasks_json: String = open_file(SETTINGSPATH);
 
     let v: Settings = json_to_struct_settings(tasks_json.as_str());
 
-    let mut task_list: Vec<(String, String)> = vec![];
+    let mut task_list: Vec<String> = vec![];
 
     for task in v.tasks {
         // println!("{:?}", task);

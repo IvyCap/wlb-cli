@@ -52,7 +52,7 @@ pub fn default_cmd() {
 pub fn task_cmd(matches: &ArgMatches) {
     let task_data = parse_task_data();
     if let Some(add) = matches.get_many::<String>("add") {
-        println!("Adding Tasks");
+        add_task_to_list();
     } else if let Some(edit) = matches.get_many::<String>("edit") {
         println!("Editing Tasks");
     } else if let Some(show) = matches.get_many::<String>("show") {

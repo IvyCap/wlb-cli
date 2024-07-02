@@ -15,7 +15,7 @@ pub fn app_title() {
     println!("");
 }
 
-fn ask_hours(task: String) -> f32 {
+pub fn ask_hours(task: String) -> f32 {
     print!("{}: ", task);
     stdout().flush().unwrap();
 
@@ -31,22 +31,22 @@ fn ask_hours(task: String) -> f32 {
     perc_time
 }
 
-fn percent_calc(task_time: f32, num_days: f32) -> f32 {
+pub fn percent_calc(task_time: f32, num_days: f32) -> f32 {
     let perc_time: f32;
     perc_time = (task_time / (HOURSDAY * num_days)) * 100.00;
     perc_time
 }
 
-pub fn get_times(tasks: Vec<(String, String)>) -> Vec<(String, f32)> {
+pub fn get_times(tasks: Vec<String>) -> Vec<(String, f32)> {
     let mut task_time = vec![];
     let mut total_time: f32 = 0.0;
     println!("Enter in how many hours have you spent on these tasks in the last 24 hours.");
     println!("(Exp: 3, 2.50, 0.25)");
     println!("");
     for task in tasks {
-        let time = ask_hours(task.1);
+        let time = ask_hours(task.clone());
         total_time += &time;
-        let title_time = (task.0, time);
+        let title_time = (task, time);
         task_time.push(title_time);
     }
 
@@ -78,28 +78,6 @@ pub fn get_times(tasks: Vec<(String, String)>) -> Vec<(String, f32)> {
     task_time
 }
 
-pub fn print_tasks_percent(titles_times: &Vec<(String, f32)>, num_days: f32) {
-    for time in titles_times {
-        let per_time = percent_calc(time.1, num_days);
-        println!(
-            "{}: {:.2}{}",
-            time.0.bright_blue(),
-            per_time.to_string().on_yellow().black(),
-            "%".on_yellow().black()
-        );
-    }
-}
-
-pub fn print_tasks_list(task_list: &Vec<(String, String)>) {
-    println!("");
-    println!("{}", "Task List".bold().cyan());
-
-    for task in task_list {
-        println!("{}: {}", task.0.bright_blue(), task.1.blue());
-    }
-    println!("");
-}
-
 pub fn combined_task_times(mut combined_recods: Vec<Vec<(String, f32)>>) -> Vec<(String, f32)> {
     let mut new_combined_list: Vec<(String, f32)> = pre_populate_task_list();
 
@@ -122,12 +100,12 @@ pub fn combined_task_times(mut combined_recods: Vec<Vec<(String, f32)>>) -> Vec<
     new_combined_list
 }
 
-fn pre_populate_task_list() -> Vec<(String, f32)> {
+pub fn pre_populate_task_list() -> Vec<(String, f32)> {
     let task_list = parse_task_data();
     let mut populated_list: Vec<(String, f32)> = vec![];
 
     for task in task_list {
-        let new_tup = (task.0, 0.0);
+        let new_tup = (task, 0.0);
         populated_list.push(new_tup);
     }
 
@@ -147,13 +125,16 @@ pub fn check_for_today() {
         {
             today_flag = true
         } else {
-            new_record_list.push(record);
+            new_record_list.push(record.clone());
         }
 
         if today_flag == true {
-            println!("Task record alreay exists for today");
-            println!("Do you want to overwrite your times for today?  Y/N");
-
+            let task_time = record.task_time;
+            println!("Task record already exists for today");
+            println!("");
+            print_tasks_percent(&task_time, 1.0);
+            println!("Do you want to overwrite your times for today?");
+            print!("Y/N: ");
             stdout().flush().unwrap();
 
             let mut change_task: String = String::new();
@@ -167,10 +148,12 @@ pub fn check_for_today() {
                 }
                 "n" | "no" => {
                     println!("Not adding new task times. Exiting...");
+                    println!("");
                     exit(0)
                 }
                 _ => {
                     println!("Invalid option! Exiting!");
+                    println!("");
                     exit(0)
                 }
             }
