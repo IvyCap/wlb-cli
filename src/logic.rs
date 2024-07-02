@@ -114,8 +114,8 @@ pub fn pre_populate_task_list() -> Vec<(String, f32)> {
     populated_list
 }
 
-pub fn check_for_today() {
-    let daily_records_list = parse_task_time_data();
+pub fn check_for_today(settings_file: &Settings) {
+    let daily_records_list = parse_task_time_data(settings_file);
     let mut today_flag = false;
     let now = Local::now();
     let mut new_record_list: Vec<DailyRecord> = vec![];
@@ -146,7 +146,7 @@ pub fn check_for_today() {
             match change_task.as_str() {
                 "y" | "yes" => {
                     println!("Adding new task times");
-                    overwrite_tasks(&new_record_list)
+                    overwrite_tasks(&new_record_list, settings_file)
                 }
                 "n" | "no" => {
                     println!("Not adding new task times. Exiting...");

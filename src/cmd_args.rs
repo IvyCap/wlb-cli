@@ -32,10 +32,10 @@ pub fn subcmd_args() -> Command {
 
 // pub fn default_cmd() {}
 
-pub fn default_cmd() {
+pub fn default_cmd(settings_file: &Settings) {
     let task_data = parse_task_data();
 
-    check_for_today();
+    check_for_today(settings_file);
 
     let task_times: Vec<(String, f32)> = get_times(task_data);
 
@@ -43,7 +43,7 @@ pub fn default_cmd() {
 
     let date = DateRecord::create_today();
 
-    save_task_time(task_times, date);
+    save_task_time(task_times, date, settings_file);
 }
 
 pub fn task_cmd(matches: &ArgMatches) {
@@ -57,9 +57,9 @@ pub fn task_cmd(matches: &ArgMatches) {
     }
 }
 
-pub fn review_cmd(matches: &ArgMatches) {
+pub fn review_cmd(matches: &ArgMatches, settings_file: &Settings) {
     let now = Local::now();
-    let daily_records_list = parse_task_time_data();
+    let daily_records_list = parse_task_time_data(settings_file);
     if let Some(_today) = matches.get_many::<String>("today") {
         for record in daily_records_list {
             if record.date.year == now.year()

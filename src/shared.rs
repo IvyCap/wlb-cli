@@ -8,34 +8,36 @@ use std::process::exit;
 use crate::logic::*;
 use crate::parser::*;
 
-pub fn overwrite_tasks(new_record: &Vec<DailyRecord>) {
-    let file = open_file(TASKTIMEPATH);
+pub fn overwrite_tasks(new_record: &Vec<DailyRecord>, settings_file: &Settings) {
+    let file = open_file(settings_file.save_file_path.as_str());
     let mut task_records: TaskRecords = json_to_struct_task_records(&file.as_str());
 
     task_records.daily_records = new_record.to_vec();
 
     let new_json = struct_task_records_to_json(task_records);
 
-    write_to_file(TASKTIMEPATH, new_json);
+    write_to_file(settings_file.save_file_path.as_str(), new_json);
 }
 
-pub fn save_task_time(task_times: Vec<(String, f32)>, date: DateRecord) {
-    does_file_exist(TASKTIMEPATH);
+pub fn save_task_time(task_times: Vec<(String, f32)>, date: DateRecord, settings_file: &Settings) {
+    let tasks_file_path: String = parse_tasks_file_path();
+
+    does_file_exist(tasks_file_path.as_str());
 
     let new_record = DailyRecord::create(task_times, date);
 
-    let _ = write_save_file(new_record);
+    let _ = write_save_file(new_record, settings_file);
 }
 
-pub fn write_save_file(new_record: DailyRecord) {
-    let file = open_file(TASKTIMEPATH);
+pub fn write_save_file(new_record: DailyRecord, settings_file: &Settings) {
+    let file = open_file(settings_file.save_file_path.as_str());
     let mut task_records: TaskRecords = json_to_struct_task_records(&file.as_str());
 
     task_records.daily_records.push(new_record);
 
     let new_json = struct_task_records_to_json(task_records);
 
-    write_to_file(TASKTIMEPATH, new_json);
+    write_to_file(settings_file.save_file_path.as_str(), new_json);
 }
 
 pub fn write_to_file(path: &str, data: String) {
@@ -64,7 +66,7 @@ pub fn does_file_exist(file_path: &str) {
     let path = Path::new(file_path);
 
     if !Path::exists(path) {
-        if file_path == TASKTIMEPATH {
+        if file_path == DEFAULTTASKTIMEPATH {
             let data_tr = TaskRecords::new();
             let new_json = struct_task_records_to_json(data_tr);
             write_to_file(file_path, new_json);

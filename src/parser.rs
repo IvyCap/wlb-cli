@@ -4,18 +4,24 @@ use serde::{Deserialize, Serialize};
 use crate::shared::*;
 
 #[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct Settings {
     pub tasks: Vec<String>,
+    pub save_file_path: String,
 }
 
 impl Settings {
     pub fn new() -> Settings {
-        let new_record: Settings = Settings { tasks: vec![] };
+        let new_record: Settings = Settings {
+            tasks: vec![],
+            save_file_path: "./taskTimeData.json".to_string(),
+        };
         new_record
     }
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
+#[serde(rename_all = "camelCase")]
 pub struct TaskRecords {
     pub daily_records: Vec<DailyRecord>,
 }
@@ -30,6 +36,7 @@ impl TaskRecords {
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct DailyRecord {
     pub date: DateRecord,
     pub task_time: Vec<(String, f32)>,
@@ -46,6 +53,7 @@ impl DailyRecord {
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Copy, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct DateRecord {
     pub year: i32,
     pub month: u32,
@@ -65,7 +73,17 @@ impl DateRecord {
 }
 
 pub const SETTINGSPATH: &str = "./wlbSettings.json";
-pub const TASKTIMEPATH: &str = "./taskTimeData.json";
+pub const DEFAULTTASKTIMEPATH: &str = "./taskTimeData.json";
+
+pub fn parse_save_file_path() -> Settings {
+    _ = does_file_exist(SETTINGSPATH);
+
+    let tasks_json: String = open_file(SETTINGSPATH);
+
+    let file: Settings = json_to_struct_settings(tasks_json.as_str());
+
+    file
+}
 
 pub fn parse_task_data() -> Vec<String> {
     _ = does_file_exist(SETTINGSPATH);
@@ -84,16 +102,28 @@ pub fn parse_task_data() -> Vec<String> {
     task_list
 }
 
-pub fn parse_task_time_data() -> Vec<DailyRecord> {
-    _ = does_file_exist(TASKTIMEPATH);
+pub fn parse_task_time_data(save_file_path: &Settings) -> Vec<DailyRecord> {
+    _ = does_file_exist(save_file_path.save_file_path.as_str());
 
-    let task_time_data_json: String = open_file(TASKTIMEPATH);
+    let task_time_data_json: String = open_file(save_file_path.save_file_path.as_str());
 
     let v: TaskRecords = json_to_struct_task_records(task_time_data_json.as_str());
 
     let daily_records_list = v.daily_records;
 
     daily_records_list
+}
+
+pub fn parse_tasks_file_path() -> String {
+    _ = does_file_exist(SETTINGSPATH);
+
+    let tasks_json: String = open_file(SETTINGSPATH);
+
+    let file: Settings = json_to_struct_settings(tasks_json.as_str());
+
+    let task_path = file.save_file_path;
+
+    task_path
 }
 
 pub fn json_to_struct_settings(tasks: &str) -> Settings {
