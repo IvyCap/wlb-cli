@@ -84,13 +84,15 @@ pub fn combined_task_times(combined_recods: Vec<Vec<(String, f32)>>) -> Vec<(Str
     for day_tasks in combined_recods {
         for task in day_tasks {
             let mut in_list_flag: bool = false;
+            let mut list_index = 0;
             for new_task in new_combined_list.clone() {
                 if new_task.0.to_lowercase() == task.0.to_lowercase() {
                     let new_time = (new_task.0.clone(), new_task.1 + task.1);
-                    new_combined_list.remove(0);
+                    new_combined_list.remove(list_index);
                     new_combined_list.push(new_time);
                     in_list_flag = true;
                 }
+                list_index += 1;
             }
             if in_list_flag == false {
                 new_combined_list.push(task)

@@ -6,11 +6,7 @@ use crate::logic::*;
 use crate::parser::*;
 use crate::shared::*;
 
-// //Todo: Add edit arg to edit task_data json file with text editor
-
 // //Todo: Add args to get task percetages for the week, month, year, ytd from historic task_data json file
-
-// //Todo: Add args to add task and review task lists
 
 pub fn subcmd_args() -> Command {
     command!()
@@ -28,7 +24,8 @@ pub fn subcmd_args() -> Command {
                 .about("Review time spent on tasks")
                 .arg(arg!(-t --today [TODAY] "Review todays task data"))
                 .arg(arg!(-w --week [WEEK] "Review task data over the current week"))
-                .arg(arg!(-d --ytd [YTD] "Review task data over the current year"))
+                .arg(arg!(-m --month [MONTH] "Review task data over the current month"))
+                .arg(arg!(-y --ytd [YTD] "Review task data over the current year"))
                 .arg_required_else_help(true),
         )
 }
@@ -81,6 +78,24 @@ pub fn review_cmd(matches: &ArgMatches) {
                 print_tasks_percent(&day_task_time, 1.0)
             }
         }
+    } else if let Some(_month) = matches.get_many::<String>("month") {
+        let mut combined_record: Vec<Vec<(String, f32)>> = vec![];
+        let mut days_of_tasks: f32 = 0.0;
+        for record in daily_records_list {
+            if record.date.month == now.month() {
+                days_of_tasks += 1.0;
+                combined_record.push(record.task_time)
+            }
+        }
+        let day_task_time = combined_task_times(combined_record);
+        println!("");
+        println!(
+            "{} {}",
+            "Task Percentages for the month of:".cyan(),
+            now.format("%B").to_string().cyan()
+        );
+        println!("Number of days tasks where logged: {}", &days_of_tasks);
+        print_tasks_percent(&day_task_time, days_of_tasks)
     } else if let Some(_ytd) = matches.get_many::<String>("ytd") {
         let mut combined_record: Vec<Vec<(String, f32)>> = vec![];
         let mut days_of_tasks: f32 = 0.0;
