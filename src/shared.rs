@@ -1,8 +1,8 @@
-use chrono::{Date, Datelike, Local};
 use colored::*;
+use core::task;
 use std::fs::File;
 use std::io::prelude::*;
-use std::io::{empty, stdin, stdout, Write};
+use std::io::{stdin, stdout, Write};
 use std::path::Path;
 use std::process::exit;
 
@@ -51,6 +51,8 @@ pub fn write_to_file(path: &str, data: String) {
 pub fn write_task_file(tasks_data: Vec<String>) {
     let mut file: Settings = json_to_struct_settings(open_file(SETTINGSPATH).as_str());
 
+    file.tasks.truncate(0);
+
     for task_data in tasks_data {
         file.tasks.push(task_data);
     }
@@ -74,6 +76,14 @@ pub fn does_file_exist(file_path: &str) {
             println!("Task list does not exist. Create new task list");
             add_task_to_list();
         }
+    }
+}
+
+pub fn is_task_list_empty() {
+    let task_data = parse_task_data();
+    if task_data.is_empty() {
+        println!("Task list is empty!");
+        add_task_to_list()
     }
 }
 
@@ -110,17 +120,16 @@ pub fn open_file(path: &str) -> String {
 pub fn print_tasks_percent(titles_times: &Vec<(String, f32)>, num_days: f32) {
     for time in titles_times {
         let per_time = percent_calc(time.1, num_days);
-        println!("");
         println!(
             "{}:{}{}{:.2}{}",
             time.0.blue(),
             time.1.to_string().yellow(),
             "hrs/".yellow(),
-            per_time.to_string().on_yellow().black(),
-            "%".on_yellow().black()
+            per_time.to_string().on_yellow().bold().black(),
+            "%".on_yellow().bold().black()
         );
-        println!("");
     }
+    println!("");
 }
 
 pub fn print_tasks_list(task_list: &Vec<String>) {
@@ -155,6 +164,30 @@ pub fn add_task_to_list() {
             _ => task_data.push(new_task),
         }
     }
+}
+
+pub fn edit_tasklist() {
+    println!("");
+    println!("Enter in edited task names to add to task list. One task per line.");
+    println!("Leave line blank and press enter to not edit task name");
+
+    let task_data = parse_task_data();
+    let mut new_data: Vec<String> = vec![];
+
+    for task in task_data {
+        let mut edited_task = String::new();
+        print!("Edit '{}': ", task);
+        stdout().flush().unwrap();
+        stdin().read_line(&mut edited_task).unwrap().to_string();
+        edited_task.pop();
+        let updated_task = match edited_task.as_str() {
+            "" => task,
+            _ => edited_task,
+        };
+        new_data.push(updated_task);
+    }
+
+    verify_task_list(&new_data);
 }
 
 fn verify_task_list(task_list: &Vec<String>) {

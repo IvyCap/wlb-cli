@@ -3,7 +3,7 @@ use crate::shared::*;
 
 use chrono::{Datelike, Local};
 use colored::*;
-use std::io::{empty, stdin, stdout, Write};
+use std::io::{stdin, stdout, Write};
 use std::process::exit;
 
 const HOURSDAY: f32 = 24.0;
@@ -78,7 +78,7 @@ pub fn get_times(tasks: Vec<String>) -> Vec<(String, f32)> {
     task_time
 }
 
-pub fn combined_task_times(mut combined_recods: Vec<Vec<(String, f32)>>) -> Vec<(String, f32)> {
+pub fn combined_task_times(combined_recods: Vec<Vec<(String, f32)>>) -> Vec<(String, f32)> {
     let mut new_combined_list: Vec<(String, f32)> = pre_populate_task_list();
 
     for day_tasks in combined_recods {

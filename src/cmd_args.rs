@@ -28,7 +28,7 @@ pub fn subcmd_args() -> Command {
                 .about("Review time spent on tasks")
                 .arg(arg!(-t --today [TODAY] "Review todays task data"))
                 .arg(arg!(-w --week [WEEK] "Review task data over the current week"))
-                .arg(arg!(-y --year [YEAR] "Review task data over the current year"))
+                .arg(arg!(-d --ytd [YTD] "Review task data over the current year"))
                 .arg_required_else_help(true),
         )
 }
@@ -38,7 +38,7 @@ pub fn subcmd_args() -> Command {
 pub fn default_cmd() {
     let task_data = parse_task_data();
 
-    _ = check_for_today();
+    check_for_today();
 
     let task_times: Vec<(String, f32)> = get_times(task_data);
 
@@ -51,11 +51,11 @@ pub fn default_cmd() {
 
 pub fn task_cmd(matches: &ArgMatches) {
     let task_data = parse_task_data();
-    if let Some(add) = matches.get_many::<String>("add") {
+    if let Some(_add) = matches.get_many::<String>("add") {
         add_task_to_list();
-    } else if let Some(edit) = matches.get_many::<String>("edit") {
-        println!("Editing Tasks");
-    } else if let Some(show) = matches.get_many::<String>("show") {
+    } else if let Some(_edit) = matches.get_many::<String>("edit") {
+        edit_tasklist();
+    } else if let Some(_show) = matches.get_many::<String>("show") {
         print_tasks_list(&task_data)
     }
 }
@@ -63,7 +63,7 @@ pub fn task_cmd(matches: &ArgMatches) {
 pub fn review_cmd(matches: &ArgMatches) {
     let now = Local::now();
     let daily_records_list = parse_task_time_data();
-    if let Some(today) = matches.get_many::<String>("today") {
+    if let Some(_today) = matches.get_many::<String>("today") {
         for record in daily_records_list {
             if record.date.year == now.year()
                 && record.date.month == now.month()
@@ -81,7 +81,7 @@ pub fn review_cmd(matches: &ArgMatches) {
                 print_tasks_percent(&day_task_time, 1.0)
             }
         }
-    } else if let Some(year) = matches.get_many::<String>("year") {
+    } else if let Some(_ytd) = matches.get_many::<String>("ytd") {
         let mut combined_record: Vec<Vec<(String, f32)>> = vec![];
         let mut days_of_tasks: f32 = 0.0;
         for record in daily_records_list {
