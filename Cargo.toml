@@ -5,7 +5,7 @@ description = "The Work Life Balance calculator time tracks & displays daily per
 edition = "2021"
 author = ["Ivycap"]
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/ivycap"
+repository = "https://github.com/ivycap/wlb-cli"
 
 [dependencies]
 chrono = "0.4.38"
